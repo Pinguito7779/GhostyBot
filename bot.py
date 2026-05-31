@@ -43,6 +43,27 @@ async def test(interaction: discord.Interaction):
     ghost = random.choice(ghosts)
     await interaction.response.send_message(f"The chosen ghost is: {ghost}")
 
+@tree.command(name="spin_all_maps", description="Spin the Map Wheel", guild=discord.Object(id=1473332148491518098))
+async def test(interaction: discord.Interaction):
+    group = random.choice([small_maps, medium_maps, big_maps])
+    map = random.choice(group)
+    await interaction.response.send_message(f"The chosen map is: {map}")
+
+@tree.command(name="spin_small_maps", description="Spin the Small Map Wheel", guild=discord.Object(id=1473332148491518098))
+async def test(interaction: discord.Interaction):
+    map = random.choice(small_maps)
+    await interaction.response.send_message(f"The chosen map is: {map}")
+
+@tree.command(name="spin_medium_maps", description="Spin the Medium Map Wheel", guild=discord.Object(id=1473332148491518098))
+async def test(interaction: discord.Interaction):
+    map = random.choice(medium_maps)
+    await interaction.response.send_message(f"The chosen map is: {map}")
+
+@tree.command(name="spin_big_maps", description="Spin the Big Map Wheel", guild=discord.Object(id=1473332148491518098))
+async def test(interaction: discord.Interaction):
+    map = random.choice(big_maps)
+    await interaction.response.send_message(f"The chosen map is: {map}")
+
 # =========== GHOSTS, MAPS====================
 with open("assets/ghosts", "r") as g:
     ghosts = [line.strip() for line in g if line.strip()]
