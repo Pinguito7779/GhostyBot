@@ -38,6 +38,11 @@ async def on_message(message):
 async def test(interaction: discord.Interaction):
     await interaction.response.send_message("Test successful!")
 
+@tree.command(name="spin_ghost", description="Spin the Ghost Wheel", guild=discord.Object(id=1473332148491518098))
+async def test(interaction: discord.Interaction):
+    ghost = random.choice(ghosts)
+    await interaction.response.send_message(f"The chosen ghost is: {ghost}")
+
 # =========== GHOSTS, MAPS====================
 with open("assets/ghosts", "r") as g:
     ghosts = [line.strip() for line in g if line.strip()]
