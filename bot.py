@@ -34,10 +34,6 @@ async def on_message(message):
 # ============================================
 
 # ==================== COMMANDS =======================
-@tree.command(name="test", description="Test command", guild=discord.Object(id=1473332148491518098))
-async def test(interaction: discord.Interaction):
-    await interaction.response.send_message("Test successful!")
-
 @tree.command(name="spin_ghost", description="Spin the Ghost Wheel", guild=discord.Object(id=1473332148491518098))
 async def test(interaction: discord.Interaction):
     ghost = random.choice(ghosts)
