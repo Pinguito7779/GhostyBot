@@ -124,6 +124,17 @@ async def show_roles(interaction: discord.Interaction):
     
     await interaction.response.send_message(message, ephemeral=True)
 
+@tree.command(name="my_roles", description="Show the description for your role.", guild=GUILD_ID)
+async def my_role(interaction: discord.Interaction):
+    member = interaction.user.nick
+    player_roles = roles[member]
+    names = ", ".join(player_roles)
+    message = f"Your current roles are {names}:\n\n"
+    for role in player_roles:
+        message += role + ": " + role_descriptions[role] + "\n\n"
+
+    await interaction.response.send_message(message, ephemeral=True)
+
 @tree.command(name="show_role_descriptions", description="Show the descriptions for every role", guild=GUILD_ID)
 async def show_role_descriptions(interaction: discord.Interaction):
     message = "------- ROLE DESCRIPTIONS -------\n"
