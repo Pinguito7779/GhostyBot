@@ -49,7 +49,7 @@ async def on_message(message):
     #     await message.channel.send(f"Hello there, Class {memberclass} and clearance {clearance} with ID {message.author.id} in channel {message.channel} with ID {message.channel.id}!")
     # --------------- CHECK FOR CODE ---------------
     if re.search("\d{6}", message.content):
-        code = int(re.search("\d{6}", message.content)[0])
+        code = re.search("\d{6}", message.content)[0]
         guild_id = message.guild.id
         lobby_codes[guild_id] = code
 
@@ -159,7 +159,7 @@ async def clear_roles(interaction: discord.Interaction):
 async def show_code(interaction: discord.Interaction):
     guild_id = interaction.guild.id
     code = lobby_codes[guild_id]
-    await interaction.response.send_message(f"Lobby code: {code}.")
+    await interaction.response.send_message(f"Lobby code: {code}.", ephemeral=True)
 
 # =========== GHOSTS, MAPS==================================
 with open("assets/ghosts", "r") as g:
