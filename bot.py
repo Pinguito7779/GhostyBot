@@ -35,17 +35,23 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if "hi" in message.content.lower() or "hello" in message.content.lower():
-        if message.author.id == 840878777945161738:
-            memberclass = "Overseer"
-            clearance = 5
-        elif message.author.id == 1214071849848414228:
-            memberclass = "Security"
-            clearance = 4
-        else:
-            memberclass = "D"
-            clearance = 1
-        await message.channel.send(f"Hello there, Class {memberclass} and clearance {clearance} with ID {message.author.id} in channel {message.channel} with ID {message.channel.id}!")
+    # -------------- CHECK THE HI MESSAGE --------------
+    # if "hi" in message.content.lower() or "hello" in message.content.lower():
+    #     if message.author.id == 840878777945161738:
+    #         memberclass = "Overseer"
+    #         clearance = 5
+    #     elif message.author.id == 1214071849848414228:
+    #         memberclass = "Security"
+    #         clearance = 4
+    #     else:
+    #         memberclass = "D"
+    #         clearance = 1
+    #     await message.channel.send(f"Hello there, Class {memberclass} and clearance {clearance} with ID {message.author.id} in channel {message.channel} with ID {message.channel.id}!")
+    # --------------- CHECK FOR CODE ---------------
+    if re.search("\d{6}", message.content):
+        code = int(re.search("\d{6}", message.content)[0])
+        guild_id = message.guild.id
+        lobby_codes[guild_id] = code
 
     elif client.user.display_name.lower() in message.content.lower():
         await message.response.send_message(message.author.nick)
@@ -148,6 +154,13 @@ async def clear_roles(interaction: discord.Interaction):
     roles.clear()
     await interaction.response.send_message("Cleared the current roles.")
 
+
+@tree.command(name="show_code", description="Show the last lobby code typed in the server.", guild=GUILD_ID)
+async def show_code(interaction: discord.Interaction):
+    guild_id = interaction.guild.id
+    code = lobby_codes[guild_id]
+    await interaction.response.send_message(f"Lobby code: {code}.")
+
 # =========== GHOSTS, MAPS==================================
 with open("assets/ghosts", "r") as g:
     ghosts = [line.strip() for line in g if line.strip()]
@@ -182,6 +195,7 @@ with open("assets/roles", "r", encoding="utf-8") as file:
         role_descriptions[role] = description
 
 # ============================================
+lobby_codes = {}
 
 # ============================================
 
