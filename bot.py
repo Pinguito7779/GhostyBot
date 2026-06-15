@@ -1,6 +1,7 @@
 import dotenv
 import random
 import re
+import os
 
 import discord
 from discord import app_commands
@@ -47,14 +48,21 @@ async def on_message(message):
     #         memberclass = "D"
     #         clearance = 1
     #     await message.channel.send(f"Hello there, Class {memberclass} and clearance {clearance} with ID {message.author.id} in channel {message.channel} with ID {message.channel.id}!")
+
+    
     # --------------- CHECK FOR CODE ---------------
-    if re.search("\d{6}", message.content):
-        code = re.search("\d{6}", message.content)[0]
+    if re.search(f"http", message.content):
+        return
+
+    if re.search(r"\d{6}", message.content):
+        code = re.search(r"(\d{6})", message.content)
         guild_id = message.guild.id
         lobby_codes[guild_id] = code
 
-    elif client.user.display_name.lower() in message.content.lower():
+    if client.user.display_name.lower() in message.content.lower():
         await message.response.send_message(message.author.nick)
+
+
 # ============================================
 
 # ==================== COMMANDS =======================
@@ -160,6 +168,85 @@ async def show_code(interaction: discord.Interaction):
     guild_id = interaction.guild.id
     code = lobby_codes[guild_id]
     await interaction.response.send_message(f"Lobby code: {code}.", ephemeral=True)
+
+# ============================= VOICE CHANNELS =====================================
+@tree.command(name="join_vc", description="Join a vc.", guild=GUILD_ID)
+async def join_vc(interaction: discord.Interaction):
+    if not interaction.user.voice:
+        await interaction.response.send_message("You need to be in a vc to use this command.")
+
+    channel = interaction.user.voice.channel
+    await channel.connect()
+    await interaction.response.send_message("Joined VC.", ephemeral=True)
+
+@tree.command(name="play_file", description="Play a file", guild=GUILD_ID)
+async def play_file(interaction: discord.Interaction, filename: str):
+    # Connect to vc if not already
+    if not interaction.guild.voice_client:
+        if not interaction.user.voice:
+            await interaction.response.send_message("Either you or I need to be in a VC.", ephemeral=True)
+
+        channel = interaction.user.voice.channel
+        await channel.connect()
+
+    vc = interaction.guild.voice_client
+
+    if vc.is_playing():
+        vc.stop()
+
+    path = os.path.join("audio", filename)
+    if not os.path.isfile(path):
+        await interaction.response.send_message("No filename with that name.", ephemeral=True)
+
+    source = discord.FFmpegPCMAudio(f"audio/{filename}")
+    vc.play(source)
+
+    await interaction.response.send_message(f"Playing {filename}")
+
+@tree.command(name="stop", description="Stop the audio from playing", guild=GUILD_ID)
+async def stop(interaction: discord.Interaction):
+    if not (vc := interaction.guild.voice_client):
+        await interaction.response.send_message("I'm not in a VC...", ephemeral=True)
+        return
+    elif not vc.is_playing():
+        await interaction.response.send_message("There's no audio playing...", ephemeral=True)
+        return
+
+    vc.stop()
+
+    await interaction.response.send_message("Stopped playing audio.")
+
+@tree.command(name="pause", description="Pauses the playback.", guild=GUILD_ID)
+async def pause(interaction: discord.Interaction):
+    if not (vc := interaction.guild.voice_client):
+        await interaction.response.send_message("I'm not in a VC...", ephemeral=True)
+        return
+    elif not vc.is_playing():
+        await interaction.response.send_message("There's no audio playing...", ephemeral=True)
+        return
+
+    vc.pause()
+
+    await interaction.response.send_message("Paused the playback.")
+
+@tree.command(name="resume", description="Resume the playback", guild=GUILD_ID)
+async def resume(interaction: discord.Interaction):
+    if not (vc := interaction.guild.voice_client):
+       await interaction.response.send_message("I'm not in a VC...", ephemeral=True)
+       return
+
+    vc.resume()
+
+    await interaction.response.send_message("Resumed the playback.")
+
+@tree.command(name="disconnect", description="Disconnect from the vc.", guild=GUILD_ID)
+async def disconnect(interaction: discord.Interaction):
+    if not interaction.guild.voice_client:
+        await interaction.response.send_message("I'm not in a voice channel...", ephemeral=True)
+
+    channel = interaction.guild.voice_client
+    await channel.disconnect()
+    await interaction.response.send_message("Leaving VC.", ephemeral=True)
 
 # =========== GHOSTS, MAPS==================================
 with open("assets/ghosts", "r") as g:
